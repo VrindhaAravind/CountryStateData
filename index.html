@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+
+<body style="background-color: darkcyan;">
+  <h2 style="font-family: fantasy; color: rgb(152, 187, 185); text-align: center;">SELECT YOUR COUNTRY</h2>
+  <div class='jumbotron mt-5' style="background-color: darkcyan; color: white;">
+    <div class='container'>
+      <div class='row '>
+        <div class='col-md-6 '>
+          <p><b>NAME</b></p>
+        </div>
+        <div class='col-md-6 '>
+          <input class="form-control" type="text" placeholder="Name">
+        </div>
+      </div>
+      <div class='row '>
+        <div class='col-md-6 '>
+          <p><b>EMAIL</b></p>
+        </div>
+        <div class='col-md-6 '>
+          <input class="form-control" type="email" placeholder="Email">
+        </div>
+      </div>
+      <!-- country -->
+      <div class='row '>
+        <div class='col-md-6 '>
+          <p><b>COUNTRY</b></p>
+        </div>
+        <div class='col-md-6 '>
+          <select id="country" class='form-control'>
+            <option value="">-- Country --</option>
+          </select>
+        </div>
+      </div> <!-- end country row -->
+
+      <!-- region -->
+      <div class='row w3-margin-bottom'>
+        <div class='col-md-6 '>
+          <p><b>REGION</b></p>
+        </div>
+        <div class='col-md-6 '>
+          <select id="region" class='form-control'>
+            <option value="">-- Region --</option>
+          </select>
+        </div>
+      </div> <!-- end region row -->
+<div cla="row">
+  <button style="margin-top: 10px; margin-left: 40%; color: black;" class="btn btn-dark" type="submit">Submit</button>
+
+</div>
+
+      <div id='location'></div>
+    </div> <!-- end container -->
+  </div> <!-- end jumbotron -->
+  <!-- footer -->
+  <script>
+    $(document).ready(function () {
+      //-------------------------------SELECT CASCADING-------------------------//
+      var selectedCountry = (selectedRegion = selectedCity = countryCode = "");
+
+      // This is a demo API key for testing purposes. You should rather request your API key (free) from http://battuta.medunes.net/
+      var BATTUTA_KEY = "b48eabc82f30a02ac403be534b613113";
+      // Populate country select box from battuta API
+      url = "https://battuta.medunes.net/api/country/all/?key=" + BATTUTA_KEY + "&callback=?";
+
+      // EXTRACT JSON DATA.
+      $.getJSON(url, function (data) {
+        console.log(data);
+        $.each(data, function (index, value) {
+          // APPEND OR INSERT DATA TO SELECT ELEMENT. Set the country code in the id section rather than in the value.
+          $("#country").append(
+            '<option id="' +
+            value.code +
+            '" value="' +
+            value.name +
+            '">' +
+            value.name +
+            "</option>"
+          );
+        });
+      });
+      // Country selected --> update region list .
+      $("#country").change(function () {
+        selectedCountry = this.options[this.selectedIndex].text;
+        // get the id of the option which has the country code.
+        countryCode = $(this)
+          .children(":selected")
+          .attr("id");
+        // Populate country select box from battuta API
+        url = "https://battuta.medunes.net/api/region/" + countryCode + "/all/?key=" + BATTUTA_KEY + "&callback=?";
+        $.getJSON(url, function (data) {
+          $("#region option").remove();
+          $('#region').append('<option value="">Please select your region</option>');
+          $.each(data, function (index, value) {
+            // APPEND OR INSERT DATA TO SELECT ELEMENT.
+            $("#region").append(
+              '<option value="' + value.region + '">' + value.region + "</option>"
+            );
+          });
+        });
+      });
+      // // Region selected --> updated city list
+      // $("#region").on("change", function () {
+      //   selectedRegion = this.options[this.selectedIndex].text;
+      //   // Populate country select box from battuta API
+      //   // countryCode = $("#country").val();
+      //   region = $("#region").val();
+      //   url = "https://battuta.medunes.net/api/city/" + countryCode + "/search/?region=" + region +
+      //     "&key=" +
+      //     BATTUTA_KEY +
+      //     "&callback=?";
+      //   $.getJSON(url, function (data) {
+      //     console.log(data);
+      //     $("#city option").remove();
+      //     $('#city').append('<option value="">Please select your city</option>');
+      //     $.each(data, function (index, value) {
+      //       // APPEND OR INSERT DATA TO SELECT ELEMENT.
+      //       $("#city").append(
+      //         '<option value="' + value.city + '">' + value.city + "</option>"
+      //       );
+      //     });
+      //   });
+      // });
+      // city selected --> update location string
+    //   $("#city").on("change", function () {
+    //     selectedCity = this.options[this.selectedIndex].text;
+    //     $("#location").html(
+    //       "Locatation: Country: " +
+    //       selectedCountry +
+    //       ", Region: " +
+    //       selectedRegion +
+    //       ", City: " +
+    //       selectedCity
+    //     );
+    //   });
+    });
+
+    // very simple process form function to collect input values.
+    // function processForm() {
+    //   var username = (password = country = region = city = "");
+    //   username = $("#username").val();
+    //   password = $("#password").val();
+    //   country = $("#country").val();
+    //   region = $("#region").val();
+    //   // city = $("#city").val();
+    //   if (
+    //     country != "" &&
+    //     region != "" &&
+    //     city != ""
+    //   ) {
+    //     $("#location").html(
+    //       "Locatation: Country: " +
+    //       country +
+    //       ", Region: " +
+    //       region 
+        
+    //     );
+    //   } else {
+    //     $("#location").html("Fill Country, Region and City to view the location");
+    //     return false;
+    //   }
+    // }
+
+  </script>
+
+</body>
+
+</html>
